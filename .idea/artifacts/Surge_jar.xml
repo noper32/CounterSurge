@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Surge:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Surge_jar</output-path>
+    <root id="archive" name="Surge.jar">
+      <element id="module-output" name="Surge" />
+    </root>
+  </artifact>
+</component>

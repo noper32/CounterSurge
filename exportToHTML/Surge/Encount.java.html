@@ -1,0 +1,409 @@
+<html>
+<head>
+<title>Encount.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(0,0,255); }
+.s4 { color: rgb(0,128,0); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Encount.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">package </span><span class="s1">Surge; 
+ 
+</span><span class="s2">/** 
+ * Created with IntelliJ IDEA. 
+ * User: maa 
+ * Date: 23.05.13 
+ * Time: 11:05 
+ * To change this template use File | Settings | File Templates. 
+ */</span><span class="s1"> 
+ 
+</span><span class="s0">public class </span><span class="s1">Encount { 
+    </span><span class="s0">private static final int </span><span class="s1">LIGHT_SPEED = </span><span class="s3">300</span><span class="s1">; </span><span class="s2">// м/мкс</span><span class="s1"> 
+    </span><span class="s0">private static final double </span><span class="s1">BETA = </span><span class="s3">0.3</span><span class="s1">; 
+    </span><span class="s0">private static final double </span><span class="s1">MAIN_DISCHRGE_SPEED = BETA*LIGHT_SPEED; 
+    </span><span class="s0">private static final int </span><span class="s1">CURRENT_MIN = </span><span class="s3">3</span><span class="s1">; </span><span class="s2">//кА</span><span class="s1"> 
+    </span><span class="s0">private static final int </span><span class="s1">WIRES_COUNT = </span><span class="s3">3</span><span class="s1">; 
+ 
+    </span><span class="s0">private double </span><span class="s1">voltageClass; </span><span class="s2">// Класс напряжения, кВ</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">phaseVoltageAmplitude; </span><span class="s2">// Амплитуда напряжения промышленной частоты, кВ</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">omega; </span><span class="s2">// Циклическая промышленная частота   рад/с</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">period; </span><span class="s2">//Период промышленной частоты  с</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">insulationDischargeVoltage; </span><span class="s2">//Напряжение перекрытия гирлянды, кВ</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">towerHeight; </span><span class="s2">//Высота опоры, м</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">ropeAnkHeight; </span><span class="s2">// Высота крепления троса, м</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">ropeMiddleHeight; </span><span class="s2">//Средняя высота троса, м</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">ropeRadius; </span><span class="s2">// Радиус троса</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">wireAnkHeight[] = </span><span class="s0">new double</span><span class="s1">[WIRES_COUNT]; </span><span class="s2">// Высота подвеса проводов, м</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">wireMiddleHeight[] = </span><span class="s0">new double</span><span class="s1">[WIRES_COUNT]; </span><span class="s2">//Средняя высота проводов, м</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">wireRadius; </span><span class="s2">// Радиус проводов</span><span class="s1"> 
+ 
+    </span><span class="s0">private double </span><span class="s1">ropeWireHeight[] = </span><span class="s0">new double</span><span class="s1">[WIRES_COUNT]; </span><span class="s2">//Разность высот подвеса провода и троса</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">gndResistance;   </span><span class="s2">//Сопротивление заземления опоры, Ом</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">groundResistivity;   </span><span class="s2">// Удельное сопротивление земли Ом*м</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">powerArcFactor;  </span><span class="s2">//Коэффициент перехода импульсного перекрытия в силовую дугу</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">N;   </span><span class="s2">// Число ударов молнии на 100 км длинны линии.</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">hSize;   </span><span class="s2">// Характеристический размер , м</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">ropeZGeo;    </span><span class="s2">// Волновое сопротивление троса обусловленное геометрией, Ом</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">ropeZCorone; </span><span class="s2">// Волновое сопротивление троса с поправкой на корону, ом</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">tHalfSpan;   </span><span class="s2">// Половина времени пробега пролёта, мкс?</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">spanLength; 
+ 
+    </span><span class="s0">private double </span><span class="s1">timeStep = </span><span class="s3">0.01</span><span class="s1">; </span><span class="s2">// Шаг расчёта по времени, мкс</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">timeMax = </span><span class="s3">10</span><span class="s1">;    </span><span class="s2">// Максимальное время расчёта, мкс</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">alphaStep = </span><span class="s3">1</span><span class="s1">;   </span><span class="s2">// Шаг изменения крутизны тока молнии, кА/мкс</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">alphaMax = </span><span class="s3">97.8</span><span class="s1">;  </span><span class="s2">// Максимальное значение крутизны тока молнии, кА/мкс</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">industrialVoltageStep = </span><span class="s3">0.001</span><span class="s1">; </span><span class="s2">// Шаг времени напряжения промышленной частоты, с</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">wireHorDist[] = </span><span class="s0">new double</span><span class="s1">[WIRES_COUNT]; 
+    </span><span class="s0">private double </span><span class="s1">ropeHorDist; 
+    </span><span class="s0">private double </span><span class="s1">kTower; 
+ 
+    </span><span class="s0">public void </span><span class="s1">setSolverParameters(</span><span class="s0">double </span><span class="s1">pTimeStep, </span><span class="s0">double </span><span class="s1">pTimeMax, </span><span class="s0">double </span><span class="s1">pAlphaStep, </span><span class="s0">double </span><span class="s1">pAlphaMax, </span><span class="s0">double </span><span class="s1">pIndustrialVoltageStep){ 
+        timeStep = pTimeStep; 
+        timeMax = pTimeMax; 
+        alphaStep = pAlphaStep; 
+        alphaMax = pAlphaMax; 
+        industrialVoltageStep = pIndustrialVoltageStep; 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">setWires(</span><span class="s0">double </span><span class="s1">pSurgeDensityGND,</span><span class="s0">double </span><span class="s1">pSpanLength, </span><span class="s0">double </span><span class="s1">pInsulationLength,</span><span class="s0">double </span><span class="s1">pTowerHeight, </span><span class="s0">double </span><span class="s1">pWireRadius,</span><span class="s0">double </span><span class="s1">pWireHorDist[],</span><span class="s0">double </span><span class="s1">pWireAnkHeight[],</span><span class="s0">double </span><span class="s1">pWireMinHeight[], </span><span class="s0">double </span><span class="s1">pRopeRadius,</span><span class="s0">double </span><span class="s1">pRopeHorDist,</span><span class="s0">double </span><span class="s1">pRopeAnkHeight, </span><span class="s0">double </span><span class="s1">pRopeMinHeight,</span><span class="s0">double </span><span class="s1">pVoltageClass,</span><span class="s0">double </span><span class="s1">pMaxLineVoltage,</span><span class="s0">double </span><span class="s1">pFrequency,</span><span class="s0">double </span><span class="s1">pGNDResistance,</span><span class="s0">double </span><span class="s1">pGNDResistivity, </span><span class="s0">double </span><span class="s1">phSize, </span><span class="s0">double </span><span class="s1">pkTower, </span><span class="s0">double </span><span class="s1">pRopeZCorone){ 
+        voltageClass = pVoltageClass; 
+        towerHeight = pTowerHeight; 
+        wireRadius = pWireRadius; 
+        ropeRadius = pRopeRadius; 
+        ropeAnkHeight=pRopeAnkHeight; 
+        ropeZCorone = pRopeZCorone; 
+        ropeHorDist = pRopeHorDist; 
+        hSize = phSize; 
+        kTower = pkTower; 
+        gndResistance = pGNDResistance; 
+        groundResistivity = pGNDResistivity; 
+        omega = </span><span class="s3">2</span><span class="s1">*Math.PI*pFrequency; 
+        period = </span><span class="s3">1</span><span class="s1">/pFrequency; 
+        tHalfSpan = pSpanLength/(</span><span class="s3">2</span><span class="s1">*LIGHT_SPEED); 
+        spanLength = pSpanLength; 
+ 
+        ropeMiddleHeight=FindMiddleHeight(pRopeAnkHeight,pRopeMinHeight); 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s3">0</span><span class="s1">;i&lt;wireAnkHeight.length-</span><span class="s3">1</span><span class="s1">;i++){ 
+            wireAnkHeight[i] = pWireAnkHeight[i]; 
+            ropeWireHeight[i] = pRopeAnkHeight - pWireAnkHeight[i]; 
+            wireMiddleHeight[i] = FindMiddleHeight(wireAnkHeight[i]-pInsulationLength,pWireMinHeight[i]); 
+            wireHorDist[i] = pWireHorDist[i]; 
+        } 
+        </span><span class="s2">//Аппроксимация зависимости 50% разрядного напряжения от длинны воздушного промежутка</span><span class="s1"> 
+        insulationDischargeVoltage = </span><span class="s3">628.1</span><span class="s1">*Math.pow(pInsulationLength,</span><span class="s3">0.8591</span><span class="s1">); 
+        phaseVoltageAmplitude = pMaxLineVoltage*Math.sqrt(</span><span class="s3">2</span><span class="s1">/</span><span class="s3">3</span><span class="s1">); 
+        powerArcFactor = (</span><span class="s3">0.92</span><span class="s1">*pMaxLineVoltage/pInsulationLength-</span><span class="s3">6</span><span class="s1">)*</span><span class="s3">0.01</span><span class="s1">;</span><span class="s2">//Коэффициент перехода имп. перекрытия в дугу.</span><span class="s1"> 
+        N = TotalSurgeCount(pSurgeDensityGND,</span><span class="s3">0</span><span class="s1">); 
+        ropeZGeo = </span><span class="s3">60</span><span class="s1">*Math.log(</span><span class="s3">2</span><span class="s1">*ropeMiddleHeight/ropeRadius); 
+ 
+    } 
+ 
+    </span><span class="s0">private static double </span><span class="s1">FindMiddleHeight(</span><span class="s0">double </span><span class="s1">pAnkHeight, </span><span class="s0">double </span><span class="s1">pMinHeight){ 
+        </span><span class="s2">/* Возвращает среднюю высоту подвеса провода по формуле hср=hкр-(2/3)*f, где f=(hкр-hмин) стрела провеса. 
+            pAnkHeight - максимальная высота подвеса провода 
+            pMinHeight - минимальная высота провода в пролёте */</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">pAnkHeight - </span><span class="s3">2</span><span class="s1">*(pAnkHeight-pMinHeight)/</span><span class="s3">3</span><span class="s1">;} 
+ 
+    </span><span class="s0">private double </span><span class="s1">TotalSurgeCount(</span><span class="s0">double </span><span class="s1">surgeDensityGND, </span><span class="s0">double </span><span class="s1">ropeRopeDist){ 
+        </span><span class="s2">/* Возвращает число ударов молнии на 100 км длины ВЛ. 
+           surgeDensityGND - Плотность разрядов молнии на землю. 
+           ropeRopeDist - Расстояние между тросами, м. 
+           ropeMiddleHeight - Средняя высота подвеса троса, м.*/</span><span class="s1"> 
+        </span><span class="s0">double </span><span class="s1">N100; 
+        </span><span class="s0">if </span><span class="s1">(ropeMiddleHeight &lt;= </span><span class="s3">30</span><span class="s1">) 
+            N100=</span><span class="s3">0.2 </span><span class="s1">* surgeDensityGND * (ropeRopeDist/</span><span class="s3">2 </span><span class="s1">+ </span><span class="s3">5</span><span class="s1">*ropeMiddleHeight - </span><span class="s3">2 </span><span class="s1">* Math.pow(ropeMiddleHeight,</span><span class="s3">2</span><span class="s1">)/</span><span class="s3">30</span><span class="s1">); 
+        </span><span class="s0">else</span><span class="s1"> 
+            N100=</span><span class="s3">0.15 </span><span class="s1">* surgeDensityGND * (ropeRopeDist/</span><span class="s3">2 </span><span class="s1">+ ropeMiddleHeight + </span><span class="s3">90</span><span class="s1">); 
+        </span><span class="s0">return </span><span class="s1">N100;} 
+ 
+    </span><span class="s0">public static double </span><span class="s1">PIIntegral(</span><span class="s0">double </span><span class="s1">pTowerHeight, </span><span class="s0">double </span><span class="s1">currentMin, </span><span class="s0">double </span><span class="s1">current){ 
+        </span><span class="s2">/*Вероятность тока молнии, превышающей значение current 
+            pTowerHeight - высота опоры, м 
+            currentMin - минимальный ток молнии, кА 
+            current - значение тока вероятность превышения которого нужно определить, кА 
+            iterations - количество разбиения интервала интегрирования средними прямоугольниками */</span><span class="s1"> 
+        </span><span class="s0">final int </span><span class="s1">ITERATIONS =  </span><span class="s3">100000</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">currenth, sigma; 
+        </span><span class="s0">if </span><span class="s1">(pTowerHeight &lt;= </span><span class="s3">20</span><span class="s1">){ 
+            currenth = </span><span class="s3">20</span><span class="s1">; 
+            sigma = </span><span class="s3">0.39</span><span class="s1">;} 
+        </span><span class="s0">else</span><span class="s1">{ 
+            currenth = </span><span class="s3">20 </span><span class="s1">+ </span><span class="s3">0.32 </span><span class="s1">* (pTowerHeight - </span><span class="s3">20</span><span class="s1">); 
+            sigma = </span><span class="s3">0.39 </span><span class="s1">- </span><span class="s3">0.0028 </span><span class="s1">* (pTowerHeight - </span><span class="s3">20</span><span class="s1">);} 
+        </span><span class="s0">double </span><span class="s1">delta = (current-currentMin)/ITERATIONS; 
+        </span><span class="s0">double </span><span class="s1">currenti = currentMin; 
+        </span><span class="s0">double </span><span class="s1">res = </span><span class="s3">0</span><span class="s1">; 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s3">1</span><span class="s1">;i&lt;=ITERATIONS;i++){ 
+            </span><span class="s0">double   </span><span class="s1">currentLoop = (currenti - delta/</span><span class="s3">2</span><span class="s1">); 
+            </span><span class="s0">double </span><span class="s1">forPow = (Math.log10(currentLoop) - Math.log10(currenth) ) / sigma; 
+            res += (</span><span class="s3">1</span><span class="s1">/currentLoop)*Math.exp(-</span><span class="s3">0.5 </span><span class="s1">* Math.pow (forPow,</span><span class="s3">2</span><span class="s1">)); 
+            currenti+=delta;} 
+        </span><span class="s0">return </span><span class="s3">1</span><span class="s1">-(Math.log10(Math.E)/Math.sqrt(</span><span class="s3">2</span><span class="s1">*Math.PI*sigma))*res*delta;} 
+ 
+    </span><span class="s0">public double </span><span class="s1">SurgeToWire(</span><span class="s0">double </span><span class="s1">pRopeWireHeight, </span><span class="s0">double </span><span class="s1">pRopeAnkHeight,</span><span class="s0">double </span><span class="s1">pRopeHorDist ,</span><span class="s0">double </span><span class="s1">pWireAnkHeight, </span><span class="s0">double </span><span class="s1">pWireMiddleHeight, </span><span class="s0">double </span><span class="s1">pWireHorDist){ 
+        </span><span class="s2">/* Возвращает удельное число отключений линии от прорывов молнии через тросовую защиту. 
+         dischargeGapLength - Длинна разрядного промежутка, м. 
+         towerHeight - Высота опоры, м. 
+         ropeWaveResistance - Волновое сопротивление троса, Ом. 
+         voltageClass - Класс напряжения линии, кВ. 
+         wireAnkHeight - Высота подвеса провода на опоре, м. 
+         pWireMiddleHeight - Средняя высота провода, м. 
+         wireRadius - Радиус провода, м. 
+         ropeAnkHeight - Высота подвеса троса, м. 
+         pRopeWireHeight - Разность высот подвеса провода и троса на опоре, м. 
+         ropeWireHorDist - Смещение провода и троса по горизонтали, м. 
+         currentMin - Минимальный ток молнии, кА. 
+         N - Число ударов молнии на 100 км линии.*/</span><span class="s1"> 
+        </span><span class="s0">double </span><span class="s1">ropeWireHorDist = Math.abs(pRopeHorDist - pWireHorDist); 
+        </span><span class="s0">double </span><span class="s1">current = </span><span class="s3">2</span><span class="s1">*insulationDischargeVoltage/ropeZCorone; 
+        </span><span class="s0">double </span><span class="s1">Pi = PIIntegral(towerHeight,CURRENT_MIN,current); 
+        </span><span class="s0">double </span><span class="s1">Q0= Math.pow(</span><span class="s3">200</span><span class="s1">,(</span><span class="s3">1</span><span class="s1">+</span><span class="s3">0.1</span><span class="s1">*voltageClass/</span><span class="s3">1000</span><span class="s1">)); 
+        </span><span class="s0">double </span><span class="s1">Q=voltageClass/(Math.log(</span><span class="s3">2</span><span class="s1">*pWireMiddleHeight/wireRadius)); 
+        </span><span class="s0">double </span><span class="s1">Du=</span><span class="s3">1</span><span class="s1">+(voltageClass/(</span><span class="s3">1000</span><span class="s1">*pRopeWireHeight))*Math.pow((</span><span class="s3">0.75</span><span class="s1">*pWireAnkHeight*Q/(pRopeWireHeight*(Q+Q0))),</span><span class="s3">3</span><span class="s1">); 
+        </span><span class="s0">double </span><span class="s1">pAlpha = Math.exp((</span><span class="s3">3.2</span><span class="s1">*ropeWireHorDist*Math.sqrt(pRopeAnkHeight/pRopeWireHeight)/pRopeWireHeight-</span><span class="s3">9</span><span class="s1">/Du)/Du); 
+ 
+        System.out.println(</span><span class="s4">&quot;Unit 1 Debug data: &quot;</span><span class="s1">+</span><span class="s4">&quot; N=&quot;</span><span class="s1">+N+</span><span class="s4">&quot; pAlpha=&quot;</span><span class="s1">+pAlpha+</span><span class="s4">&quot; Pi=&quot;</span><span class="s1">+Pi+</span><span class="s4">&quot; powerArcFactor=&quot;</span><span class="s1">+powerArcFactor); 
+        </span><span class="s0">double </span><span class="s1">res =N*pAlpha*Pi*powerArcFactor; 
+        System.out.println(</span><span class="s4">&quot;res=&quot;</span><span class="s1">+res); 
+        </span><span class="s0">return </span><span class="s1">N * pAlpha * Pi * powerArcFactor;} 
+ 
+    </span><span class="s0">private double </span><span class="s1">FindSparkingResistance(</span><span class="s0">double </span><span class="s1">ro, </span><span class="s0">double </span><span class="s1">groundResistance, </span><span class="s0">double </span><span class="s1">S, </span><span class="s0">double </span><span class="s1">towerCurrent){ 
+      </span><span class="s2">/* Корректирует сопротивление с учётом искрообразования в грунте 
+      ro - удельное сопротивление грунта. 
+      groundResistance - Сопротивление заземления опоры 
+      S - Характеристический размер. 
+      towerCurrent - Ток стекающий по опоре. */</span><span class="s1"> 
+        </span><span class="s0">double </span><span class="s1">impR = groundResistance; 
+        </span><span class="s0">double </span><span class="s1">eDischarge = </span><span class="s3">6.9 </span><span class="s1">* Math.log10(ro)-</span><span class="s3">0.6</span><span class="s1">*Math.pow(Math.log10(ro),</span><span class="s3">2</span><span class="s1">)-</span><span class="s3">3.4</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">P1 = groundResistance*S/ro; 
+        </span><span class="s0">double </span><span class="s1">P2 = Math.exp(Math.log(</span><span class="s3">0.256 </span><span class="s1">/ P1) / </span><span class="s3">0.354</span><span class="s1">); 
+        </span><span class="s0">double </span><span class="s1">sparkingCurrent = P2*Math.pow(S,</span><span class="s3">2</span><span class="s1">)*eDischarge/ro; 
+        </span><span class="s0">if </span><span class="s1">(towerCurrent &gt; sparkingCurrent){ 
+            P2 = towerCurrent * ro / (Math.pow(S,</span><span class="s3">2</span><span class="s1">)*eDischarge); 
+            </span><span class="s0">if </span><span class="s1">(P2&gt;</span><span class="s3">45</span><span class="s1">) 
+                P1=</span><span class="s3">1.829</span><span class="s1">*Math.pow(P2,-</span><span class="s3">0.871</span><span class="s1">); 
+            </span><span class="s0">else</span><span class="s1"> 
+                P1=</span><span class="s3">0.256</span><span class="s1">*Math.pow(P2,-</span><span class="s3">0.354</span><span class="s1">); 
+            impR=P1*ro/S;} 
+        </span><span class="s0">return </span><span class="s1">impR;} 
+ 
+    </span><span class="s0">private static double </span><span class="s1">DiTowerdt(</span><span class="s0">double </span><span class="s1">pAlpha,</span><span class="s0">double </span><span class="s1">pdiRopedt){ 
+        </span><span class="s0">return </span><span class="s1">pAlpha-</span><span class="s3">2</span><span class="s1">*pdiRopedt;} 
+ 
+    </span><span class="s0">private double </span><span class="s1">FindCoroneRadius(</span><span class="s0">double </span><span class="s1">pRadius,</span><span class="s0">int </span><span class="s1">pWireN,</span><span class="s0">double </span><span class="s1">pAlpha){ 
+        </span><span class="s2">/* Возвращает радиус провода или троса с учётом коронного чехла, м 
+           pRadius - Радиус провода или троса, м 
+           pWireN - Число составляющих расщеплённого провода или троса, шт 
+           pAlpha - Скорость наростания тока молнии кА/мкс 
+         */</span><span class="s1"> 
+        </span><span class="s0">final double </span><span class="s1">CORONE_RADIUS_ACCURACY = </span><span class="s3">1.0E-05</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">aCoroneRadius[] = {</span><span class="s3">0</span><span class="s1">,pRadius}; 
+        </span><span class="s0">double </span><span class="s1">zRope,uRope,eRope; 
+        </span><span class="s0">do</span><span class="s1">{ 
+            aCoroneRadius[</span><span class="s3">0</span><span class="s1">]=aCoroneRadius[</span><span class="s3">1</span><span class="s1">]; 
+            zRope = </span><span class="s3">60</span><span class="s1">*Math.log(</span><span class="s3">2</span><span class="s1">*ropeMiddleHeight/aCoroneRadius[</span><span class="s3">0</span><span class="s1">]); 
+            uRope = pAlpha * tHalfSpan * zRope/</span><span class="s3">2</span><span class="s1">; 
+            eRope = </span><span class="s3">33.9</span><span class="s1">*Math.pow(aCoroneRadius[</span><span class="s3">0</span><span class="s1">],</span><span class="s3">0.268</span><span class="s1">); 
+            aCoroneRadius[</span><span class="s3">1</span><span class="s1">]=uRope/eRope*pWireN*Math.log(</span><span class="s3">2</span><span class="s1">*ropeMiddleHeight/aCoroneRadius[</span><span class="s3">0</span><span class="s1">]); 
+        }</span><span class="s0">while </span><span class="s1">(aCoroneRadius[</span><span class="s3">1</span><span class="s1">]-aCoroneRadius[</span><span class="s3">0</span><span class="s1">]&gt;=CORONE_RADIUS_ACCURACY); 
+        </span><span class="s0">return </span><span class="s1">aCoroneRadius[</span><span class="s3">1</span><span class="s1">];} 
+ 
+    </span><span class="s0">private double </span><span class="s1">FindCoroneRadius(</span><span class="s0">double </span><span class="s1">pRadius,</span><span class="s0">int </span><span class="s1">pWireN,</span><span class="s0">double </span><span class="s1">pAlpha,</span><span class="s0">double </span><span class="s1">pRopeAnkHeight,</span><span class="s0">double </span><span class="s1">pR){ 
+        </span><span class="s2">/* Возвращает радиус провода или троса с учётом коронного чехла при поподании молнии в опору, м 
+           pRadius - Радиус провода или троса, м 
+           pWireN - Число составляющих расщеплённого провода или троса, шт 
+           pAlpha - Скорость наростания тока молнии, кА/мкс 
+           pRopeAnkHeight - Высота подвеса троса на опоре, м 
+           pR - Сопротивление заземления, Ом 
+         */</span><span class="s1"> 
+        </span><span class="s0">final double </span><span class="s1">CORONE_RADIUS_ACCURACY = </span><span class="s3">1.0E-05</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">aCoroneRadius[] = {</span><span class="s3">0</span><span class="s1">,pRadius}; 
+        </span><span class="s0">double </span><span class="s1">zRope,uRope,eRope,zTower = pR + pRopeAnkHeight*kTower; 
+        </span><span class="s0">do</span><span class="s1">{ 
+            aCoroneRadius[</span><span class="s3">0</span><span class="s1">]=aCoroneRadius[</span><span class="s3">1</span><span class="s1">]; 
+            zRope = </span><span class="s3">60</span><span class="s1">*Math.log(</span><span class="s3">2</span><span class="s1">*ropeMiddleHeight/aCoroneRadius[</span><span class="s3">0</span><span class="s1">]); 
+            uRope = pAlpha * tHalfSpan * (zTower*zRope/</span><span class="s3">2</span><span class="s1">)/(zTower+zRope/</span><span class="s3">2</span><span class="s1">); 
+            eRope = </span><span class="s3">33.9</span><span class="s1">*Math.pow(aCoroneRadius[</span><span class="s3">0</span><span class="s1">],</span><span class="s3">0.268</span><span class="s1">); 
+            aCoroneRadius[</span><span class="s3">1</span><span class="s1">]=uRope/eRope*pWireN*Math.log(</span><span class="s3">2</span><span class="s1">*ropeMiddleHeight/aCoroneRadius[</span><span class="s3">0</span><span class="s1">]); 
+        }</span><span class="s0">while </span><span class="s1">(aCoroneRadius[</span><span class="s3">1</span><span class="s1">]-aCoroneRadius[</span><span class="s3">0</span><span class="s1">]&gt;=CORONE_RADIUS_ACCURACY); 
+        </span><span class="s0">return </span><span class="s1">aCoroneRadius[</span><span class="s3">1</span><span class="s1">]; 
+    } 
+ 
+    </span><span class="s0">private double </span><span class="s1">FindKRopeWire(</span><span class="s0">double </span><span class="s1">pWireHorDist,</span><span class="s0">double </span><span class="s1">pRopeHorDist, </span><span class="s0">double </span><span class="s1">pWireMiddleHeight, </span><span class="s0">double </span><span class="s1">pRopeMiddleHeight, </span><span class="s0">double </span><span class="s1">pRopeRadius){ 
+        </span><span class="s2">/*Возвращает коэффициент связи провода и троса, о.е. 
+        pWireHorDist - Расстояние между осью опоры и точкой крепления провода в горизонтальной плоскости 
+        pRopeHorDist - Расстояние между осью опоры и точкой крепления троса в горизонтальной плоскости 
+        pWireMiddleHeight - Средняя высота подвеса провода в пролёте 
+        pRopeMiddleHeight - Средняя высота подвеса троса в пролёте 
+        pRopeRadius - Радиус троса (с учётом короны или без) 
+         */</span><span class="s1"> 
+        </span><span class="s0">double </span><span class="s1">ropeWireHorDist = pWireHorDist-pRopeHorDist; 
+        </span><span class="s0">double </span><span class="s1">ropeWireD = Math.sqrt(Math.pow(Math.abs(ropeWireHorDist),</span><span class="s3">2</span><span class="s1">)+Math.pow(pWireMiddleHeight+pRopeMiddleHeight,</span><span class="s3">2</span><span class="s1">)); 
+        </span><span class="s0">double </span><span class="s1">ropeWired = Math.sqrt(Math.pow(ropeWireHorDist,</span><span class="s3">2</span><span class="s1">)+Math.pow(pRopeMiddleHeight-pWireMiddleHeight,</span><span class="s3">2</span><span class="s1">)); 
+        </span><span class="s0">return </span><span class="s1">Math.log(ropeWireD/ropeWired)/Math.log(</span><span class="s3">2</span><span class="s1">*pRopeMiddleHeight/pRopeRadius);} 
+ 
+    </span><span class="s0">public double </span><span class="s1">SurgeToTower(</span><span class="s0">double </span><span class="s1">pWireAnkHeight, </span><span class="s0">double </span><span class="s1">pRopeAnkHeight, </span><span class="s0">double </span><span class="s1">pRopeWireHeight, </span><span class="s0">double </span><span class="s1">pRopeTowerInductance, </span><span class="s0">double </span><span class="s1">pRopeInductance,</span><span class="s0">double </span><span class="s1">pWireHorDist, </span><span class="s0">double </span><span class="s1">pRopeHorDist, </span><span class="s0">double </span><span class="s1">pWireMiddleHeight, </span><span class="s0">double </span><span class="s1">pRopeMiddleHeight ){ 
+        </span><span class="s2">/* Возвращает число отключений линии от ударов молнии в опору. 
+            pWireAnkHeight - Высота подвеса провода на опоре, м 
+            pRopeAnkHeight - Высота подвеса троаса на опоре, м 
+            pRopeWireHeight - Вертикальное расстояение между точками подвеса провода и троса, м 
+           pRopeTowerInductance - Индуктивность опоры до точки подвеса троса 
+           pRopeInductance - Индуктивность троса 
+           kRopeWire - Коэффициент 
+         */</span><span class="s1"> 
+        </span><span class="s0">double </span><span class="s1">R, vIndustrial, ropeCoroneRadius, kRopeWire; 
+        </span><span class="s0">double </span><span class="s1">tIndustrial =</span><span class="s3">0</span><span class="s1">, Pai=</span><span class="s3">0</span><span class="s1">, Pi=</span><span class="s3">0</span><span class="s1">, psum=</span><span class="s3">0</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">H = pRopeAnkHeight + pWireAnkHeight; 
+        </span><span class="s0">boolean </span><span class="s1">first = </span><span class="s0">true</span><span class="s1">; 
+        </span><span class="s0">do</span><span class="s1">{ 
+            vIndustrial= phaseVoltageAmplitude * Math.sin(omega*tIndustrial); 
+            </span><span class="s0">double </span><span class="s1">alpha = alphaMax; 
+            </span><span class="s0">do</span><span class="s1">{ 
+                </span><span class="s0">double </span><span class="s1">towerCurrent = </span><span class="s3">0</span><span class="s1">; 
+                </span><span class="s0">double </span><span class="s1">ropeCurrent = </span><span class="s3">0</span><span class="s1">; 
+                </span><span class="s0">double </span><span class="s1">time = </span><span class="s3">0</span><span class="s1">; 
+                </span><span class="s0">do</span><span class="s1">{ 
+                    R = FindSparkingResistance(groundResistivity, gndResistance, hSize, towerCurrent); 
+                    ropeCoroneRadius = FindCoroneRadius(ropeRadius,</span><span class="s3">1</span><span class="s1">,alpha,pRopeAnkHeight,R); 
+                    </span><span class="s0">double </span><span class="s1">surgeCurrent = alpha*time; 
+                    </span><span class="s0">double </span><span class="s1">mWire = </span><span class="s3">0.2 </span><span class="s1">* pWireAnkHeight * (Math.log((MAIN_DISCHRGE_SPEED*time+H)/((</span><span class="s3">1</span><span class="s1">+BETA)*H))-pRopeWireHeight/(</span><span class="s3">2</span><span class="s1">*pWireAnkHeight)*Math.log(H/pRopeWireHeight)+</span><span class="s3">1</span><span class="s1">); 
+                    </span><span class="s0">double </span><span class="s1">mRope = </span><span class="s3">0.2 </span><span class="s1">* pRopeAnkHeight * (Math.log((MAIN_DISCHRGE_SPEED*time+</span><span class="s3">2</span><span class="s1">*pRopeAnkHeight)/((</span><span class="s3">1</span><span class="s1">+BETA)*</span><span class="s3">2</span><span class="s1">*pRopeAnkHeight))+</span><span class="s3">1</span><span class="s1">); 
+                    </span><span class="s0">double </span><span class="s1">diRopedt; 
+                    </span><span class="s0">if </span><span class="s1">(time &lt; tHalfSpan) 
+                        diRopedt = (alpha * (mRope + pRopeTowerInductance)+surgeCurrent*R-</span><span class="s3">2</span><span class="s1">*ropeCurrent*ropeZGeo/</span><span class="s3">2</span><span class="s1">+R)/(</span><span class="s3">2</span><span class="s1">*pRopeTowerInductance); 
+                    </span><span class="s0">else</span><span class="s1"> 
+                        diRopedt = (alpha*(mRope+pRopeTowerInductance)+surgeCurrent*R-</span><span class="s3">3</span><span class="s1">*ropeCurrent*R)/(pRopeInductance+</span><span class="s3">3</span><span class="s1">*pRopeTowerInductance); 
+                    </span><span class="s0">double </span><span class="s1">diTowerdt=DiTowerdt(alpha,diRopedt); 
+                    kRopeWire = FindKRopeWire(pWireHorDist,pRopeHorDist,pWireMiddleHeight,pRopeMiddleHeight,ropeCoroneRadius); 
+                    ropeCurrent += diRopedt*timeStep; 
+                    towerCurrent+= diTowerdt*timeStep; 
+                    </span><span class="s0">double </span><span class="s1">vInductMagnet = pRopeTowerInductance*diTowerdt+alpha*mWire; 
+                    </span><span class="s0">double </span><span class="s1">vR = towerCurrent*R; 
+                    </span><span class="s0">double </span><span class="s1">vInductE = (alpha*</span><span class="s3">0.1</span><span class="s1">*pWireAnkHeight/BETA)*(</span><span class="s3">1</span><span class="s1">-kRopeWire*pRopeAnkHeight/pWireAnkHeight)*Math.log(((MAIN_DISCHRGE_SPEED*time+pRopeAnkHeight)*Math.sqrt((MAIN_DISCHRGE_SPEED*time+H)*(MAIN_DISCHRGE_SPEED*time+pRopeWireHeight)))/(Math.pow((</span><span class="s3">1</span><span class="s1">+BETA),</span><span class="s3">2</span><span class="s1">)*pRopeAnkHeight*Math.sqrt(pRopeWireHeight*H))); 
+                    </span><span class="s0">double </span><span class="s1">vInRope = kRopeWire*(vR*pRopeTowerInductance*diTowerdt+alpha*mRope); 
+                    </span><span class="s0">if </span><span class="s1">(insulationDischargeVoltage&lt;=vR+vInductMagnet+vInductE-vInRope+vIndustrial){ 
+                        </span><span class="s0">if </span><span class="s1">(first){ 
+                            Pai=Math.exp(</span><span class="s3">0.008</span><span class="s1">*alpha); 
+                            Pi=PIIntegral(towerHeight,CURRENT_MIN,surgeCurrent); 
+                            first=</span><span class="s0">false</span><span class="s1">;} 
+                        </span><span class="s0">else</span><span class="s1">{ 
+                            psum+=Pi*(Pai-Math.exp(</span><span class="s3">0.008</span><span class="s1">*alpha)); 
+                            Pi=PIIntegral(towerHeight,CURRENT_MIN,surgeCurrent); 
+                            Pai=Math.exp(</span><span class="s3">0.008</span><span class="s1">*alpha);} 
+                        </span><span class="s0">break</span><span class="s1">;} 
+                    time+=timeStep; 
+                }</span><span class="s0">while </span><span class="s1">(time &lt; timeMax); 
+            alpha -=alphaStep; 
+            }</span><span class="s0">while </span><span class="s1">(alpha &gt; </span><span class="s3">0</span><span class="s1">); 
+            tIndustrial+=industrialVoltageStep; 
+        }</span><span class="s0">while </span><span class="s1">(tIndustrial&lt;=period); 
+        </span><span class="s0">return </span><span class="s1">psum*N*powerArcFactor/(period/industrialVoltageStep);} 
+ 
+    </span><span class="s0">public double </span><span class="s1">SurgeToRope(</span><span class="s0">double </span><span class="s1">pRopeHorDist,</span><span class="s0">double </span><span class="s1">pRopeAnkHeight, </span><span class="s0">double </span><span class="s1">pRopeMiddleHeight, </span><span class="s0">double </span><span class="s1">pRopeRadius,</span><span class="s0">double </span><span class="s1">pRopeN, </span><span class="s0">double </span><span class="s1">pWireHorDist,</span><span class="s0">double </span><span class="s1">pWireAnkHeight, </span><span class="s0">double </span><span class="s1">pWireMiddleHeight, </span><span class="s0">double </span><span class="s1">pRopeInductance, </span><span class="s0">double </span><span class="s1">pRopeTowerInductance){ 
+        </span><span class="s2">/* Возвращает число отключений линии от удара молнии в трос 
+          pRopeHorDist - Горизонтальное расстояние от оси опоры до точки подвеса троса, м 
+          pRopeAnkHeight - Высота подвеса троса, м 
+          pRopeMiddleHeight - Средняя высота троса в пролёте, м 
+          pRopeRadius - Радиус троса, м 
+          pRopeN - Количество составляющих в тросе, шт 
+          pWireHorDist - Горизонтальное расстояние от оси опорыдо точки подвеса провода, м 
+          pWireAnkHeight - Высота подвеса провода, м 
+          pWireMiddleHeight - Средняя высота провода в пролёте, м 
+          pRopeInductance - Индуктивность троса 
+          pRopeTowerInductance - Индуктивность опоры до точки подвеса троса, м 
+         */</span><span class="s1"> 
+        </span><span class="s0">double </span><span class="s1">w0=Math.exp(Math.log(</span><span class="s3">2</span><span class="s1">*pRopeMiddleHeight/pRopeRadius)); 
+        </span><span class="s0">double </span><span class="s1">vIndustrial, wk; 
+        </span><span class="s0">double </span><span class="s1">tIndustrial=</span><span class="s3">0</span><span class="s1">; 
+        </span><span class="s0">boolean </span><span class="s1">first = </span><span class="s0">true</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">Pai=</span><span class="s3">0</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">Pi=</span><span class="s3">0</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">psum=</span><span class="s3">0</span><span class="s1">; 
+        </span><span class="s0">do</span><span class="s1">{ 
+            vIndustrial = phaseVoltageAmplitude *Math.sin(omega*tIndustrial); 
+            </span><span class="s0">double </span><span class="s1">alpha = alphaMax; 
+            </span><span class="s0">do</span><span class="s1">{ 
+                </span><span class="s0">double </span><span class="s1">towerCurrent = </span><span class="s3">0</span><span class="s1">; 
+                </span><span class="s0">double </span><span class="s1">ropeCurrent = </span><span class="s3">0</span><span class="s1">; 
+                </span><span class="s0">double </span><span class="s1">surgeCurrent=</span><span class="s3">0</span><span class="s1">; 
+                </span><span class="s0">double </span><span class="s1">time = </span><span class="s3">0</span><span class="s1">; 
+                </span><span class="s0">double </span><span class="s1">diRopedt , R, ropeCoroneRadius; 
+                </span><span class="s0">double </span><span class="s1">towerRopeInductance = kTower * pRopeAnkHeight; 
+                </span><span class="s0">double </span><span class="s1">towerWireInductance = kTower * pWireAnkHeight; 
+                </span><span class="s0">do</span><span class="s1">{ 
+                    R = FindSparkingResistance(groundResistivity, gndResistance, hSize, towerCurrent); 
+                    ropeCoroneRadius = FindCoroneRadius(pRopeRadius,</span><span class="s3">1</span><span class="s1">,alpha); 
+                    wk=Math.exp(Math.sqrt(Math.log(</span><span class="s3">2</span><span class="s1">*pRopeMiddleHeight/ropeCoroneRadius))); 
+                    </span><span class="s0">double </span><span class="s1">deltati = tHalfSpan *Math.sqrt((pRopeN*Math.log(w0)/(pRopeN*Math.log(wk)-</span><span class="s3">1</span><span class="s1">))-</span><span class="s3">1</span><span class="s1">); 
+                    </span><span class="s0">double </span><span class="s1">alphaR = alpha*tHalfSpan/(tHalfSpan+deltati); 
+                    ropeCoroneRadius = FindCoroneRadius(pRopeRadius,</span><span class="s3">1</span><span class="s1">,alphaR);</span><span class="s2">//Корректируем радиус короны с учётом alphaR</span><span class="s1"> 
+                    </span><span class="s0">double </span><span class="s1">kr = FindKRopeWire(pWireHorDist,pRopeHorDist,pWireMiddleHeight,pRopeMiddleHeight,ropeCoroneRadius); 
+                    diRopedt = alphaR* pRopeInductance/(</span><span class="s3">2</span><span class="s1">*(pRopeInductance+pRopeTowerInductance))+alphaR*time*R/(</span><span class="s3">2</span><span class="s1">*(pRopeInductance+pRopeTowerInductance))-ropeCurrent*R/(pRopeInductance+pRopeTowerInductance); 
+                    </span><span class="s0">double </span><span class="s1">diTowerdt = alphaR/</span><span class="s3">2 </span><span class="s1">- diRopedt; 
+                    ropeCurrent += diRopedt*time; 
+                    surgeCurrent += alphaR*time; 
+                    towerCurrent = surgeCurrent/</span><span class="s3">2 </span><span class="s1">- ropeCurrent; 
+                    </span><span class="s0">double </span><span class="s1">uR=towerCurrent*R; 
+                    </span><span class="s0">double </span><span class="s1">uInductMagnet = diTowerdt* towerWireInductance; 
+                    </span><span class="s0">double </span><span class="s1">uInductRope = kr*(uR+uInductMagnet*towerRopeInductance/towerWireInductance); 
+                    </span><span class="s0">if </span><span class="s1">(insulationDischargeVoltage &lt;= uR+uInductMagnet-uInductRope+vIndustrial){ 
+                        </span><span class="s0">if </span><span class="s1">(first){ 
+                            Pai=Math.exp(</span><span class="s3">0.008</span><span class="s1">*alphaR); 
+                            Pi=PIIntegral(towerHeight,CURRENT_MIN,surgeCurrent); 
+                            first=</span><span class="s0">false</span><span class="s1">;} 
+                        </span><span class="s0">else</span><span class="s1">{ 
+                            psum+=Pi*(Pai-Math.exp(</span><span class="s3">0.008</span><span class="s1">*alpha)); 
+                            Pi=PIIntegral(towerHeight,CURRENT_MIN,surgeCurrent); 
+                            Pai=Math.exp(</span><span class="s3">0.008</span><span class="s1">*alpha);} 
+                        </span><span class="s0">break</span><span class="s1">;} 
+                time+=timeStep; 
+                }</span><span class="s0">while </span><span class="s1">(time&lt;timeMax); 
+                alpha -=alphaStep; 
+            }</span><span class="s0">while </span><span class="s1">(alpha&gt;</span><span class="s3">0</span><span class="s1">); 
+            tIndustrial+=industrialVoltageStep; 
+        }</span><span class="s0">while </span><span class="s1">(tIndustrial&lt;=period); 
+        </span><span class="s0">return </span><span class="s1">psum*N*powerArcFactor/(period/industrialVoltageStep);} 
+ 
+    </span><span class="s0">public double </span><span class="s1">Execute(){ 
+ 
+ 
+ 
+        </span><span class="s0">double </span><span class="s1">n=</span><span class="s3">0</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">ropeTowerInductance = kTower * ropeAnkHeight; 
+        </span><span class="s0">final double </span><span class="s1">mu0=Math.PI*</span><span class="s3">4e-7</span><span class="s1">; 
+        </span><span class="s0">double </span><span class="s1">ropeInductance = (mu0/(</span><span class="s3">2</span><span class="s1">*Math.PI))*Math.log(</span><span class="s3">2</span><span class="s1">*ropeMiddleHeight/ropeRadius)*spanLength; 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s1">;i&lt;WIRES_COUNT;i++){ 
+            n=SurgeToWire(ropeWireHeight[i],ropeAnkHeight,ropeHorDist,wireAnkHeight[i],wireMiddleHeight[i],wireHorDist[i]); 
+            System.out.print(n+</span><span class="s4">&quot; &quot;</span><span class="s1">); 
+            n=SurgeToTower(wireAnkHeight[i],ropeAnkHeight,ropeWireHeight[i],ropeTowerInductance,ropeInductance,wireHorDist[i],ropeHorDist,wireMiddleHeight[i],ropeMiddleHeight); 
+            System.out.print(n+</span><span class="s4">&quot; &quot;</span><span class="s1">); 
+            n=SurgeToRope(ropeHorDist,ropeAnkHeight,ropeMiddleHeight,ropeRadius,</span><span class="s3">1</span><span class="s1">,wireHorDist[i],wireAnkHeight[i],wireMiddleHeight[i],ropeInductance,ropeTowerInductance); 
+            System.out.println(n+</span><span class="s4">&quot; &quot;</span><span class="s1">); 
+        } 
+        </span><span class="s0">return </span><span class="s1">n; 
+    } 
+ 
+ </span><span class="s2">/*   public static void main(String[] args){ 
+        System.out.println(PIIntegral(20,3,50)); 
+        //System.out.println(SurgeToWire(1.5,30,350,220,20,18,0.03,30,10,2,3,100,0.2)); 
+        //------------------------------- 
+        Encount.setWires(2.5,400,2.4,36,0.012,{3.5,3.9,6.1},{32,25.5,25.5},{24,17.5,17.5},0.006,0,36,28,220,220*1.2*Math.sqrt(3),50,20,500,13,0.86,300); 
+        System.out.println(this.Execute()); 
+ 
+    }    */</span><span class="s1"> 
+} 
+</span></pre>
+</body>
+</html>
